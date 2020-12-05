@@ -13,6 +13,7 @@ Light-level geolocators are increasingly used to study the migration of small bi
 - [Rmarkdown Manuscript](https://a-rocha-kenya.github.io/How-many-when-and-which-birds-to-equip/)
 - [Rmarkdown Code](https://github.com/A-Rocha-Kenya/How-many-when-and-which-birds-to-equip/blob/main/Rmanuscript/manuscript.Rmd)
 - [Word manuscript](https://github.com/A-Rocha-Kenya/How-many-when-and-which-birds-to-equip/blob/main/manuscript.docx?raw=true)
+- [Word manuscript](https://github.com/A-Rocha-Kenya/How-many-when-and-which-birds-to-equip/raw/main/Rmanuscript/manuscript.pdf)
 
 ### General Project
 - [ResearchaGate Project Page](https://www.researchgate.net/project/Intra-african-Bird-Migration)
