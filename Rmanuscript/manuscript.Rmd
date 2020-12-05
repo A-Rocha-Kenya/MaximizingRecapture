@@ -38,7 +38,7 @@ output:
   #rmarkdown::github_document: default
 bibliography: MyCollection.bib
 link-citations: yes
-date: December, 2020
+date: December 5, 2020
 abstract: "Light-level geolocators are increasingly used to study the migration of
   small birds. Thanks to their relatively low cost, they are particularly well-positioned
   to be deployed broadly across less well-financed and understudied regions of the
@@ -68,7 +68,9 @@ affiliation:
     Swiss Ornithological Institute, Sempach, Switzerland
 ---
 
-<aside>
+
+You can choose to see or hide all the R code of this paper with the button below
+
 <div class="layout-chunk" data-layout="l-body">
 <input onclick="codefolder(&#39;.sourceCode&#39;);" type="button" value="Hide Code" id="codefolder-button" style=""/>
 <script>
@@ -98,11 +100,12 @@ affiliation:
   });
 </script>
 </div>
-</aside>
 
 # Abstract
 
 Light-level geolocators are increasingly used to study the migration of small birds. Thanks to their relatively low cost, they are particularly well-positioned to be deployed broadly across less well-financed and understudied regions of the world, such as the Africa. A main drawback of geolocators is the need to recapture equipped birds to retrieve the data. Therefore, maximizing the recapture rate is critical to the success of any geolocator study. Using the example of a geolocator study on the coast of Kenya on Red-capped Robin-chats, this paper demonstrates how the use of an ringing data can help optimize the deployment of geolocators, both in terms of how many birds to set out to equip, and when/which birds to equip to maximize recapture in the subsequent years. We found that ringing data can help accurately estimate how many geolocators to order and provides insights into which classes of birds (based on age, capture history, and timing within the season) are most likely to be recaptured.
+
+![Graphical Abstract](../data/RN5_4514.jpg)
 
 # Introduction
 
@@ -685,14 +688,14 @@ DT::datatable(dm2020s %>% arrange(Date))
 
 ## SM2. Capture model
 
-The GAM of the count (i.e. number of RCRC captured per session) was tested with (1) year (2) day-of-year, (3) duration of the sessions and (4) starting time, (5) total length of nets and (6) weather. We first tested a GAM smoothing for each variable separately to analyse its effect (Figure \@ref(fit-meta)).
+The GAM of the count (i.e. number of RCRC captured per session) was tested with (1) year (2) day-of-year, (3) duration of the sessions and (4) starting time, (5) total length of nets and (6) weather. We first tested a GAM smoothing for each variable separately to analyse its effect (Figure \@ref(fig:fit-meta)).
 
- 1. *Year* (Figure\@ref(fit-meta)a). A general decline in the overall number of birds is observed over the 20 years of the dataset. It was included as a smoothing term. 
- 2. *Day-of-year* (Figure 8b). Day-of-year has a strong influence on the number of captures and varies non-linearly. This variable is thus included in the model as a smoothing term.
- 3. *Duration* (Figure \@ref(fit-meta)c). The duration of the session computed as the difference between closing time and opening time shows a positive correlation with the number of captures. It is thus included in the model as a linear term. 
- 4. *Net opening time* (Figure \@ref(fit-meta)d). The fit of the opening time seems to indicate a higher capture rate for sessions starting later. This relationship is contrary to common knowledge and considered non-meaningful. It is thus not retained for the model.
- 5. *Sum of net lengths* (Figure \@ref(fit-meta)e). Between 50 and 200m, the fit shows an increase of captures as the total length of the nets increases. Yet, above 200m, the fit shows a stabilisation of the count. This is explained by the fact that the nets added above 200m are located in habitats which are not ideal for RCRC and thus do not contribute to an increase in capture. This term is included as a smoothing term. 
- 6. *Weather categories* (Figure \@ref(fit-meta)f). The weather categories do not show a clear pattern and are thus not included in the model. 
+ 1. **Year** (Figure\@ref(fig:fit-meta)a). A general decline in the overall number of birds is observed over the 20 years of the dataset. It was included as a smoothing term. 
+ 2. **Day-of-year** (Figure 8b). Day-of-year has a strong influence on the number of captures and varies non-linearly. This variable is thus included in the model as a smoothing term.
+ 3. **Duration** (Figure \@ref(fig:fit-meta)c). The duration of the session computed as the difference between closing time and opening time shows a positive correlation with the number of captures. It is thus included in the model as a linear term. 
+ 4. **Net opening time** (Figure \@ref(fig:fit-meta)d). The fit of the opening time seems to indicate a higher capture rate for sessions starting later. This relationship is contrary to common knowledge and considered non-meaningful. It is thus not retained for the model.
+ 5. **Sum of net lengths** (Figure \@ref(fig:fit-meta)e). Between 50 and 200m, the fit shows an increase of captures as the total length of the nets increases. Yet, above 200m, the fit shows a stabilisation of the count. This is explained by the fact that the nets added above 200m are located in habitats which are not ideal for RCRC and thus do not contribute to an increase in capture. This term is included as a smoothing term. 
+ 6. **Weather categories** (Figure \@ref(fig:fit-meta)f). The weather categories do not show a clear pattern and are thus not included in the model. 
 
 
 ```{r fit-meta, echo=TRUE, warning=FALSE, fig.cap = "Number of RCRC captured by session as a function of (a) total length of nets, (b) duration of ringing session, (c) weather category and (d) time of session start. The red line with shaded area is a smoothed curved fitted on the data (GAM or GLM)", fig.asp=0.84, fig.align = 'center', fig.width=12}
@@ -815,7 +818,7 @@ ggsave(filename = 'figures/figureSM5.pdf', plot = p, width = 16, height=9, units
 print(p)
 ```
 
-```{r capture vs recapture, echo=TRUE, warning=FALSE, fig.cap="Variation throughout the year of the probability that a bird captured is a bird that has been captured in previous years. Blue dots denote the data for each capture of the database and the red line denote the GLM fit of a binomial model. The probability doesn’t change throughout the year indicating that maximizing the capture of bird captured previous season is the same as maximizing the number of capture.", fig.asp=0.56, fig.align = 'center', fig.width=6}
+```{r capture-vs-recapture, echo=TRUE, warning=FALSE, fig.cap="Variation throughout the year of the probability that a bird captured is a bird that has been captured in previous years. Blue dots denote the data for each capture of the database and the red line denote the GLM fit of a binomial model. The probability doesn’t change throughout the year indicating that maximizing the capture of bird captured previous season is the same as maximizing the number of capture.", fig.asp=0.56, fig.align = 'center', fig.width=6}
 p <- dr %>% ggplot(aes(x=DayOfYear, y=as.numeric(isARetrap))) +
   geom_point(  size=2) +
   geom_smooth(method="glm",  formula = y ~ x, method.args = list(family = "binomial")) +
