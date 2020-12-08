@@ -7,22 +7,22 @@ author:
   affil: a,b
   email: raphael.nussbaumer@arocha.org
   affiliation: 
-    - A Rocha Kenya, Watamu, Kenya
-    - Swiss Ornithological Institue, Sempach, Switzerland
+    - A Rocha Kenya
+    - Swiss Ornithological Institue
   orcid_id: 0000-0002-8185-1020
 - name: Kirao Lennox
-  affiliation: A Rocha Kenya, Watamu, Kenya
+  affiliation: A Rocha Kenya
   affil: a
   email: lennox.kirao@arocha.org
   orcid_id: 0000-0002-3548-5787
 - name: Felix Liechti
   affil: b
-  affiliation: Swiss Ornithological Institue, Sempach, Switzerland
+  affiliation: Swiss Ornithological Institue
   email: felix.liechti@vogelwarte.ch
   orcid_id: 0000-0001-9473-0837
 - name: Colin Jackson
   affil: a
-  affiliation: A Rocha Kenya, Watamu, Kenya
+  affiliation: A Rocha Kenya
   email: colin.jackson@arocha.org
   orcid_id: 0000-0003-2280-1397
 type: Journal Ringing & Migration
@@ -130,7 +130,10 @@ library(RColorBrewer)
 library(pammtools)
 theme_set(theme_bw())
 library(wesanderson)
+library(plotly)
 pal.name <- "Zissou1"
+wid = 704
+hei = 704*9/16
 ```
 
 ## Ringing site and database
@@ -264,6 +267,7 @@ dm2020s <- dm2020 %>%
     Duration = CloseTime-OpenTime,
     .groups = "drop") %>% 
   unique() %>% 
+  select(-date) %>% 
   mutate(
     CountFOY.cum = cumsum(CountFOY),
   )
@@ -420,25 +424,28 @@ A GAM model was fitted to the data to model the number of RCRC captured for each
 ```{r seasonal-variation-counts, echo=TRUE, warning=FALSE, fig.cap = "Seasonal variation in the number of captured RCRC per session. Points represent actual data points while the black line is the model estimate for the default/average case (156m, 4hr) with its corresponding uncertainty illustrated as shaded area. Sessions with 6 or more RCRC are illustrated on the “6+” line but with proportionate size and colour. Black points correspond to the 2020 data, when the geolocators were equipped.", fig.asp=0.56, fig.align = 'center', fig.width=6}
 p<-ggplot() +
   geom_point(data = dmrcrc %>% mutate(CountT= ifelse(Count>6,6,Count)), aes( x=DayOfYear, y=CountT, size=Count, color=Year), stroke=0, alpha=.6) +
-  geom_point(data = dm2020s, aes( x=DayOfYear, y=Count, size=Count),stroke=0)+
+  geom_point(data = dm2020s, aes( x=DayOfYear, y=Count, size=Count),stroke=0) +
   geom_ribbon(data = predictmod %>% filter(Year %in% 2020), aes(x=DayOfYear, ymin = lwrY, ymax = uprY ), color = NA, alpha=0.3) +
   geom_line(data = predictmod %>% filter(Year %in% 2020), aes(x=DayOfYear, y = fitY), size = 1) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill")) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour")) +
   xlab('Day of Year') + ylab('Number of Capture per Session') +
   scale_x_continuous(breaks=as.numeric(format(ISOdate(2004,1:12,1),"%j")),
                      labels=format(ISOdate(2004,1:12,1),"%b"),
                      minor_breaks = c(),
-                     expand = c(0,0),
-                     limits = c(100,365)) +
+                     #expand = c(0,0),
+                     limits = c(100,365)
+                     ) +
   scale_y_continuous(breaks=0:6,
                      minor_breaks = c(),
                      labels=c(0,1,2,3,4,5,'6+'),
-                     expand = c(0,0),
-                     limits = c(0,6)) +
+                     #expand = c(0,0),
+                     #limits = c(0,6)
+                     ) +
   theme( aspect.ratio=9/16) + scale_size(limits = c(-2,11))
 
 ggsave(filename = 'figures/figure1.pdf', plot = print(p), width = 16, height=9, units = "cm")
-print(p)
+#print(p)
+ggplotly(p, width=wid, height = hei)
 ```
 
 We modelled the probability of recapture within a year to extract the number of unique birds captured during a single year (Figure \@ref(fig:prob-new-bird)). As the cumulative number of RCRC captured increases, so does the recapture rate and consequently, the probability of being a new bird decreases from around 100% for the first bird to 60-70% after 40 RCRCs have been captured in the year. Note that this approach can only reliably estimate the probability up to a maximum of around 40 RCRCs captured in a year. 
@@ -454,16 +461,21 @@ dmfFOY <- dmf %>%
 p <- ggplot() +
   geom_point(data = dmfFOY, aes(x=CountOfYear, y=isFirstOfYear, color=nb, size=nb)) +
   geom_point(data = dm2020 %>% filter(!is.na(Age)), aes(x=CountOfYear, y=as.numeric(!isRetrap))) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill")) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour")) +
   geom_ribbon(data = predictmodFOY, aes(x=CountOfYear, ymin = lwr3, ymax = upr3 ), color = NA, alpha=0.4) +
   geom_line(data = predictmodFOY, aes(x=CountOfYear, y = fit), size = 1) +
   xlab('Cumulative number of birds caught along a year') + ylab('Probability of being a new bird')+
-  scale_x_continuous( minor_breaks = c(), expand = c(0,0)) +
-  scale_y_continuous( minor_breaks = c(), expand = c(0,0), labels = scales::percent) +
+  scale_x_continuous( minor_breaks = c(), 
+                      #expand = c(0,0)
+                      ) +
+  scale_y_continuous( minor_breaks = c(), 
+                      #expand = c(0,0), 
+                      labels = scales::percent) +
   theme(aspect.ratio=9/16, legend.position="top")
 
 ggsave(filename = 'figures/figure2.pdf', plot = print(p), width = 16, height=9, units = "cm")
-print(p)
+#print(p)
+ggplotly(p, width=wid, height = hei)
 ```
 
 ```{r total-rcrc-captured, echo=TRUE, warning=FALSE, fig.cap = "Model predictions of the total unique RCRC caught along a year following different scenarios. The default scenario consists of 4hr ringing sessions using 156m of nets every 10 days. ‘6h’ and ‘225m’ are modifications of the default scenario, and ‘optimized’ increases the number of sessions (to every week) during the peak passage (mid-May – July) and decreases them (to every 2 weeks) during the rest of the year. Finally, using the exact date, duration, and net length used in 2020, the model prediction ‘2020 model’ can be compared to the actual data (‘2020 data’).", fig.asp=0.56, fig.align = 'center', fig.width=6}
@@ -503,7 +515,8 @@ p <- bind_pred %>%
   theme(aspect.ratio=9/16, legend.position="top")
 
 ggsave(filename = 'figures/figure3.pdf', plot = print(p), width = 16, height=9, units = "cm")
-print(p)
+#print(p)
+ggplotly(p, width=wid, height = hei)
 ```
 
 Five different scenarios of ringing were modelled to estimate the total number of unique RCRC captured along the year in Figure \@ref(fig:total-rcrc-captured). Compared with the total number of birds caught at the end of year with the default scenario (`r bind_pred %>% filter(scenario=="default") %>% .$fit.cumsum.FOY %>% max() %>% round()`), increasing the duration of ringing sessions by two hours (‘6hr’) or adding 44m of additional nets (‘200m’) results in only three more birds caught (`r bind_pred %>% filter(scenario=="6h") %>% .$fit.cumsum.FOY %>% max() %>% round()`). However, the optimized scenario yields many more birds, with a total of `r bind_pred %>% filter(scenario=="optimized") %>% .$fit.cumsum.FOY %>% max() %>% round()` birds captured in fewer number of sessions (`r bind_pred %>% filter(scenario=="optimized") %>% nrow()` instead of `r bind_pred %>% filter(scenario=="default") %>% nrow()`).
@@ -534,32 +547,40 @@ p1 <- ggplot() +
   scale_color_manual( values=wes_palette('Cavalcanti1')) +
   scale_x_continuous(breaks=as.numeric(format(ISOdate(2004,1:12,1),"%j")),
                    labels=format(ISOdate(2004,1:12,1),"%b"),
-                   expand = c(0,0),minor_breaks = c(),
+                   #expand = c(0,0),
+                   minor_breaks = c(),
                    limits = c(100,350)) +
-  scale_y_continuous(expand = c(0,0),minor_breaks = c(), labels = scales::percent) +
+  scale_y_continuous(minor_breaks = c(), 
+                     #expand = c(0,0),
+                     labels = scales::percent) +
   theme(aspect.ratio=9/16, legend.position="none")  + labs(y='Probability of Recapture', color = "Adult", x='Day of Year')
 
 p2 <- dmrcrc %>% 
   ggplot() +
     geom_point(aes( x=DayOfYear, ifelse(CountAd>2,2,CountAd), size=CountAd) , color=wes_palette('Cavalcanti1')[2]) +
     geom_point(aes( x=DayOfYear, y=ifelse(CountJuv>2,2,CountJuv), size=CountJuv), color=wes_palette('Cavalcanti1')[1]) +
-    geom_line(data = predictmod %>% filter(Year %in% 2020), aes(x=DayOfYear, y = fitAd), color=wes_palette('Cavalcanti1')[2], size = 2) +
-    geom_line(data = predictmod %>% filter(Year %in% 2020), aes(x=DayOfYear, y = fitJuv), color=wes_palette('Cavalcanti1')[1], size = 2) +
+    geom_line(data = predictmod %>% filter(Year %in% 2020), aes(x=DayOfYear, y = fitAd), color=wes_palette('Cavalcanti1')[2], size = 1) +
+    geom_line(data = predictmod %>% filter(Year %in% 2020), aes(x=DayOfYear, y = fitJuv), color=wes_palette('Cavalcanti1')[1], size = 1) +
     geom_point(data = dm2020s, aes( x=DayOfYear, y=ifelse(CountJuv>2,2,CountJuv), size=CountJuv),stroke=0, colour=wes_palette('Cavalcanti1')[5])+
     geom_point(data = dm2020s, aes( x=DayOfYear, y=ifelse(CountAd>2,2,CountAd), size=CountAd),stroke=0, colour=wes_palette('Cavalcanti1')[4] )+
     labs(x='Day of Year', y="Count") +
     scale_x_continuous(breaks=as.numeric(format(ISOdate(2004,1:12,1),"%j")),
                        labels=format(ISOdate(2004,1:12,1),"%b"),
-                       minor_breaks = c(),expand = c(0,0),
-                      limits = c(100,365))+
-    scale_y_continuous(limits = c(0,2), expand = c(0,0),minor_breaks = c())+
+                       minor_breaks = c(),
+                       #expand = c(0,0),
+                       limits = c(100,365)
+                      )+
+    scale_y_continuous(limits = c(0,2), 
+                       #expand = c(0,0),
+                       minor_breaks = c())+
     theme(aspect.ratio=9/16, legend.position="none")
   
 p <- arrangeGrob(p1, p2)
 
 ggsave(filename = 'figures/figure4.pdf', plot = p, width = 16, height=9*2, units = "cm")
-grid.arrange(p)
+#grid.arrange(p)
 
+subplot(ggplotly(p1, width=wid, height = hei*2), ggplotly(p2, width=wid, height = hei*2), shareX=T, nrows=2)
 ```
 
 
@@ -658,6 +679,8 @@ p <- arrangeGrob(p1,p2,p3,layout_matrix = cbind(c(2,2,2,6), c(1,1,1,3), c(1,1,1,
 
 ggsave(filename = 'figures/figureSM1.pdf', plot = p, width = 50, height=50, units = "cm")
 grid.arrange(p)
+
+#subplot(ggplotly(p1), ggplotly(p2),ggplotly(p3), nrows=1)
 ```
 
 Additional information for each session was available for some sessions: start time (data available for `r round(sum(!is.na(dmrcrc$NetsOpen))/nrow(dmrcrc)*100 )`% of the sessions), closing time (`r round(sum(!is.na(dmrcrc$NetsDuration))/nrow(dmrcrc)*100 )`%), sum of net lengths (`r round(sum(!is.na(dmrcrc$NetsLength))/nrow(dmrcrc)*100 )`%), weather conditions (`r round(sum(!is.na(dmrcrc$WeatherCat))/nrow(dmrcrc)*100 )`%).
@@ -670,19 +693,28 @@ plot4 <- dmrcrc %>% ggplot() + geom_histogram(aes(x=NetsOpen), binwidth = 0.25) 
 p <- arrangeGrob(plot1, plot2,  plot3, plot4, ncol=2)
 
 ggsave(filename = 'figures/figureSM2.pdf', plot = p, width = 16, height=9, units = "cm")
-grid.arrange(p)
+#grid.arrange(p)
+subplot(ggplotly(plot1, width=wid, height = hei), ggplotly(plot2, width=wid, height = hei),ggplotly(plot3, width=wid, height = hei),ggplotly(plot4, width=wid, height = hei), nrows=2)
 ```
 
 ```{r, fig.cap='Sessions dataset'}
-DT::datatable(dmrcrc %>% arrange(Date))
+DT::datatable(dmrcrc %>% arrange(Date), width = '100%',  
+              extensions = 'Buttons', 
+              options = list(scrollX = TRUE, dom = 'Bfrtip', buttons = c('csv')))
 ```
 
 ```{r, fig.cap='Rings dataset'}
-DT::datatable(dr %>% arrange(Date))
+DT::datatable(dr %>% arrange(Date), width = '100%',  
+              extensions = 'Buttons', 
+              options = list(scrollX = TRUE, dom = 'Bfrtip', buttons = c('csv')))
 ```
 
 ```{r, fig.cap='2020 dataset'}
-DT::datatable(dm2020s %>% arrange(Date))
+DT::datatable(dm2020s %>% arrange(Date), 
+              width = '100%', 
+              extensions = 'Buttons', 
+              options = list(scrollX = TRUE, dom = 'Bfrtip', buttons = c('csv'),pageLength = 5)
+  )
 ```
 
 
@@ -707,7 +739,7 @@ plot1 <- #ggplot(data=predictmod %>% filter(date<'2019-01-01' & date>'2002-01-01
   geom_point(data=(dmrcrc %>% filter(Date>'2002-01-01')%>% mutate( Countt=ifelse(Count>6,6,Count)) %>% group_by(Year,Countt) %>% tally() %>% filter(!is.na(Year))), aes(x=Year, y=Countt, size=n, color=n)) +
   scale_x_continuous(minor_breaks = c(), expand = c(0,0)) + 
   scale_y_continuous(minor_breaks = c(), expand = c(0,0)) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill"), limits = c(0,25)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0,25)) +
   geom_point(data= dm2020s %>% mutate(Count=ifelse(Count>6,6,Count)) %>% group_by(Count) %>% tally(), aes( x=2020, y=Count, size=n) ) +
   ylab('Number of RCRC capture per session') + xlab('(a) Year') + theme(aspect.ratio=9/16)
 
@@ -718,7 +750,7 @@ plot2 <- dmrcrc %>% ggplot(aes(y=Count,x=DayOfYear)) +
                      breaks=as.numeric(format(ISOdate(2004,1:12,1),"%j")),
                      labels=format(ISOdate(2004,1:12,1),"%b")) + 
   scale_y_continuous(minor_breaks = c(), expand = c(0,0)) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill"), limits = c(0,25)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0,25)) +
   theme(aspect.ratio = 9/16) + xlab('(b) DayOfYear')
 
 
@@ -727,7 +759,7 @@ plot3 <- dmrcrc %>% ggplot(aes(y=Count,x=NetsDuration)) +
   geom_smooth(method="glm", formula = y ~ x, method.args = list(family = "poisson")) + 
   scale_x_continuous(minor_breaks = c(), expand = c(0,0)) + 
   scale_y_continuous(minor_breaks = c(), expand = c(0,0)) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill"), limits = c(0,25)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0,25)) +
   theme(aspect.ratio = 9/16) + xlab('(c) Duration')
 
 plot4 <- dmrcrc %>% ggplot(aes(y=Count,x=NetsOpen)) + 
@@ -735,7 +767,7 @@ plot4 <- dmrcrc %>% ggplot(aes(y=Count,x=NetsOpen)) +
   geom_point(data=(dmrcrc %>% mutate(nlg = round(NetsOpen/0.125)*0.125, Countt=ifelse(Count>6,6,Count)) %>% group_by(nlg,Countt) %>% tally() %>% filter(!is.na(nlg))), aes(x=nlg,y=Countt,size=n, color=n)) + 
   scale_x_continuous(minor_breaks = seq(5.5,7,0.125), expand = c(0,0)) + 
   scale_y_continuous(minor_breaks = c(), expand = c(0,0)) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill"), limits = c(0,25)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0,25)) +
   theme(aspect.ratio = 9/16) + xlab('(d) Net opening time')
 
 plot5 <- dmrcrc %>% ggplot(aes(y=Count,x=NetsLength)) + 
@@ -743,7 +775,7 @@ plot5 <- dmrcrc %>% ggplot(aes(y=Count,x=NetsLength)) +
   geom_point(data=(dmrcrc %>% mutate(nlg = round(NetsLength/25)*25, Countt=ifelse(Count>6,6,Count)) %>% group_by(nlg,Countt) %>% tally() %>% filter(!is.na(nlg))), aes(x=nlg,y=Countt,size=n, color=n)) +
   scale_x_continuous(minor_breaks = c(), expand = c(0,0)) + 
   scale_y_continuous(minor_breaks = c(), expand = c(0,0)) +
-  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour", "fill"), limits = c(0,25)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0,25)) +
   theme(aspect.ratio = 9/16) + xlab('(e) Sum of net lengths')
 
 plot6 <- dmrcrc %>% filter(!is.na(WeatherCat)) %>% ggplot(aes(x=Count, fill=WeatherCat)) + 
@@ -756,7 +788,13 @@ p <- arrangeGrob(plot1, plot2, plot3, plot4, plot5, plot6, ncol=2, nrow = 3)
 
 ggsave(filename = 'figures/figureSM3.pdf', plot = p, width = 16*2, height=9*3, units = "cm")
 
-grid.arrange(p)
+#grid.arrange(p)
+subplot(ggplotly(plot1, width=wid, height = hei*3/2), 
+        ggplotly(plot2, width=wid, height = hei*3/2),
+        ggplotly(plot3, width=wid, height = hei*3/2),
+        ggplotly(plot4, width=wid, height = hei*3/2),
+        ggplotly(plot5, width=wid, height = hei*3/2),
+        ggplotly(plot6, width=wid, height = hei*3/2), nrows=3)
 ```
 
 The retained model was `Count ~ s(Year) + s(DayOfYear) + NetsDuration + NetsLength`.
@@ -792,7 +830,8 @@ p2 <- dr %>% filter(Weight<50) %>%
 p <- arrangeGrob(p1, p2)
 
 ggsave(filename = 'figures/figureSM4.pdf', plot = p, width = 16, height=9*2, units = "cm")
-grid.arrange(p)
+#grid.arrange(p)
+subplot(ggplotly(p1, width=wid, height = hei*2), ggplotly(p2, width=wid, height = hei*2),nrows = 2)
 ```
 
 
@@ -815,7 +854,8 @@ p <- predictmod %>%
   theme(aspect.ratio=9/16, legend.position="top")  + labs(y='Expection of Recapture', x='Day of Year')
 
 ggsave(filename = 'figures/figureSM5.pdf', plot = p, width = 16, height=9, units = "cm")
-print(p)
+#print(p)
+ggplotly(p, width=wid, height = hei)
 ```
 
 ```{r capture-vs-recapture, echo=TRUE, warning=FALSE, fig.cap="Variation throughout the year of the probability that a bird captured is a bird that has been captured in previous years. Blue dots denote the data for each capture of the database and the red line denote the GLM fit of a binomial model. The probability doesn’t change throughout the year indicating that maximizing the capture of bird captured previous season is the same as maximizing the number of capture.", fig.asp=0.56, fig.align = 'center', fig.width=6}
@@ -825,13 +865,17 @@ p <- dr %>% ggplot(aes(x=DayOfYear, y=as.numeric(isARetrap))) +
   scale_color_manual( values=wes_palette('Cavalcanti1')) +
   scale_x_continuous(breaks=as.numeric(format(ISOdate(2004,1:12,1),"%j")),
                    labels=format(ISOdate(2004,1:12,1),"%b"),
-                   expand = c(0,0),minor_breaks = c(),
+                   #expand = c(0,0),
+                   minor_breaks = c(),
                    limits = c(100,350)) +
-  scale_y_continuous(expand = c(0,0),minor_breaks = c(), labels = scales::percent) +
+  scale_y_continuous(minor_breaks = c(), 
+                     #expand = c(0,0),
+                     labels = scales::percent) +
   theme(aspect.ratio=9/16, legend.position="none")  + labs(y='Probability of Capturing a recapture', color = "Adult", x='Day of Year')
 
 ggsave(filename = 'figures/figureSM6.pdf', plot = p, width = 16, height=9, units = "cm")
-print(p)
+#print(p)
+ggplotly(p, width=wid, height = hei)
 ```
 
 
@@ -847,10 +891,11 @@ p <- data.frame(x=(1:10),y=nextSeasonI) %>% ggplot( aes(y = y, x=x)) +
   geom_line() +
   scale_y_continuous(expand = c(0,0), minor_breaks = c(), labels = scales::percent, lim=c(0,.5)) +
   scale_x_continuous(expand = c(0,0), breaks = c(1:10), minor_breaks = c()) +
-  theme(aspect.ratio=9/16, legend.position="none")  + labs(y='Probability of recapture', color = "Adult", x='Day of Year')
+  theme(aspect.ratio=9/16, legend.position="none")  + labs(y='Probability of recapture', color = "Adult", x='Year after capture')
 
 ggsave(filename = 'figures/figureSM7.pdf', plot = p, width = 16, height=9, units = "cm")
-print(p)
+#print(p)
+ggplotly(p, width=wid, height = hei)
 ```
 
 ```{r, echo=TRUE, fig.asp=0.84, fig.align = 'center', fig.width=6, fig.cap="Summury of the recapture model fit (GLM)"}
