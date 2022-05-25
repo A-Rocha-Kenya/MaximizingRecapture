@@ -1,0 +1,954 @@
+---
+title: 'Using ringing data to inform geolocator deployment'
+description: | 
+  A case study of the Red-capped Robin-chat Cossypha natalensis in East Africa
+author:
+- name: Raphaël Nussbaumer
+  affil: a,b
+  email: raphael.nussbaumer@arocha.org
+  affiliation: 
+    - A Rocha Kenya
+    - Swiss Ornithological Institue
+  orcid_id: 0000-0002-8185-1020
+- name: Kirao Lennox
+  affiliation: A Rocha Kenya
+  affil: a
+  email: lennox.kirao@arocha.org
+  orcid_id: 0000-0002-3548-5787
+- name: Felix Liechti
+  affil: b
+  affiliation: Swiss Ornithological Institue
+  email: felix.liechti@vogelwarte.ch
+  orcid_id: 0000-0001-9473-0837
+- name: Colin Jackson
+  affil: a
+  affiliation: A Rocha Kenya
+  email: colin.jackson@arocha.org
+  orcid_id: 0000-0003-2280-1397
+type: Journal Ringing & Migration
+output:
+  #rticles::tf_article: default
+  #html_document: default
+  #rmdformats::html_clean:
+  #  use_bookdown: true
+  #  code_folding: hide
+  #  thumbnails: false
+  distill::distill_article:
+    toc: true
+  #rmarkdown::github_document: default
+bibliography: MyCollection.bib
+link-citations: yes
+date: May 25, 2022
+abstract: ""
+keywords: "geolocators; ringing; red-capped robin-chat; migration; intra-african;
+  bird; afro-tropical; \n"
+header-includes: |
+  \usepackage{hyperref}
+  \usepackage[utf8]{inputenc}
+  \def\tightlist{}
+  \usepackage{gensymb}
+affiliation:
+- num: a
+  address: |
+    A Rocha Kenya, Watamu, Kenya
+- num: b
+  address: |
+    Swiss Ornithological Institute, Sempach, Switzerland
+---
+
+
+You can choose to see or hide all the R code of this paper with the button below
+
+<div class="layout-chunk" data-layout="l-body">
+<input onclick="codefolder(&#39;.sourceCode&#39;);" type="button" value="Hide Code" id="codefolder-button" style=""/>
+<script>
+  function codefolder(query) {
+
+    var x = document.querySelectorAll(query);
+    if (x.length === 0) return;
+
+    function toggle_vis(o) {
+      var d = o.style.display;
+      o.style.display = (d === 'block' || d === '') ? 'none':'block';
+    }
+
+    for (i = 0; i < x.length; i++) {
+      var y = x[i];
+      toggle_vis(y);
+    }
+
+    var elem = document.getElementById("codefolder-button");
+    if (elem.value === "Hide Code") elem.value = "Show Code";
+    else elem.value = "Hide Code";
+  }
+</script>
+<script>
+  window.addEventListener('load', function () {
+    codefolder('.sourceCode');
+  });
+</script>
+</div>
+
+# Abstract
+
+
+
+![Graphical Abstract](data/RN5_4514.jpg)
+
+# Introduction
+
+Light-level geolocators are a well-established technology used to study bird migration. Relying on a simple light sensor and time clock, these devices provide location data based on sunrise and sunset. Thanks to their extremely light weight (0.5 grams), they are currently the main tracking technology available to study migration patterns of very small birds [@Bridge2011; @McKinnon2018a]. Geolocators have already helped advance our understanding of bird migration on a number of levels: identifying migration routes and non-breeding locations [e.g. @Salewski2013; @Smith2014; @Liechti2015; @Kralj2020], as well as understanding migration strategies [e.g. @Adamik2016; @Briedis2019; @Hahn2020] and migratory connectivity [e.g. @Finch2015; @Prochazka2017; @McKinnon2018a], among others. 
+
+As habitat destruction and climate change accelerate and adversely affect migrant birds, it is urgent to better understand migration patterns to effectively protect migratory bird populations [e.g. @Simmons2004; @Sekercioglu2010; @Sekercioglu2012; @Vickery2014]. Geolocators can be instrumental in helping us understand the routes, timing, triggers and variability of migration, as well as identify breeding, non-breeding and stopover sites to protect. This is of particular relevance for long-distance Afro-tropical migrant whose migration patterns still remain largely unknown [e.g. @Bennun2000; @Benson1982; @Bussiere2015; @Cox2011; @Nwaogu2016; @Osinubi2018]. In addition, thanks to their low-cost relative to GPS solutions [e.g., @Bridge2011], geolocators are particularly well-suited to projects with limited budgets. 
+
+Though the material cost for geolocator studies may be low, the fieldwork can be particularly resource-intensive, especially since the birds equipped must be recaptured to retrieve the data. Surveys therefore need to be designed in a way that optimizes both the data collected and the resources used to do so [@Hauser2009; @Moore2016; @Smart2016]. The design of efficient and effective survey protocols has received the much attention in capture recapture studies [e.g., @Devineau2006; @Lindberg2012]. This typically involves varying the levels of effort (survey duration, number of individuals surveyed, etc.) to estimate population level characteristic traits such as survival [e.g. @Lieury2017]. Optimizing geolocator surveys, on the other hand, generally comes down to maximizing the number of devices retrieved. Indeed, since geolocator studies seek to uncover bird movement information at the individual level, success relies exclusively on capturing enough tracks. 
+
+We base our optimization method on the fact that geolocator studies often take place within the context of existing ringing efforts. Indeed, assessing the suitability of the species and the optimal number of individuals to be equipped with logging devices requires basic information on recapture probability. This minimizes not only costs, but also potential negative impacts on a population [@Brlik2020].This initial assessment can be carried out with relatively small datasets with variable effort, or even with data from similar locations or species. Though such historical data could also be leveraged to plan geolocator fieldwork, simple tools and methods to do so are currently lacking.
+Drawing on a case study carried out on the Red-capped Robin-chat, an Afro-tropical migrant in Kenya, we demonstrate how performing a pre-deployment analysis using an existing ringing database can improve the planning and implementation of geolocator deployment. In particular, we show how this pre-analysis can inform two questions:
+(1) How many birds can we expect to equip during a full season for a given ringing schedule? Ordering geolocators requires accurately estimating the number of individuals that can realistically be captured per ringing season. Since geolocators are configured to start collecting data for a specific year when assembled, overestimating the individuals captured would result in wasting devices, while underestimating would lead to missed opportunities and inefficient field work. An accurate estimation of number of birds captured also helps design an optimal ringing effort (in terms of number of sessions, duration of sessions, number of nets, etc). 
+(2) How can we maximize bird recapture by equipping specific classes of birds (e.g., sex, age) and targeting specific periods of the year? The ringing database provides the recapture rate of a bird as a function of the equipment date but also of its age and weight, allowing the ringer to make an informed decision about whether to equip a given bird. This decision should also account for the number of geolocators available, the number of sessions left, and the specific research question asked. 
+
+
+
+# Materials and methods
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gridExtra)
+library(RODBC)
+library(mgcv)
+library(visreg)
+library(mice)
+library(lubridate)
+library(RColorBrewer)
+library(wesanderson)
+library(plotly)
+pal.name <- "Zissou1"
+theme_set(theme_bw())
+wid <- 704
+hei <- 704 * 9 / 16
+```
+
+## Case study species
+
+In this case study, geolocators were placed on Red-capped Robin-chats _Cossypha natalensis_ (RCRC) (16–17 cm; 24–40 g, [@Collar2020]), a terrestrial thrush living in the forest understory, shrubland and savannas. It tends to reside in forests where the canopy is not too dense, as it relies on low shrubs. Because both resident and intra-African migrant populations coexist, the migratory patterns of this species have been difficult to understand [@Collar2020]. Further complexity is added by the fact that three sub-species are found in Africa: _larischi_ in Western Africa (Nigeria and Angola), _natalensisis_ in South Africa and _intensahas_ ranging from N. South Africa to Somalia as well as central Africa.  
+
+On the coast of Kenya, RCRC are present from April to October, yet their breeding location and migration routes remain unknown [@Nussbaumer2020]. They are known to hold territory on their non-breeding sites and show site fidelity as demonstrated by the high recapture rate of 42% on the study site, making them an ideal species for a geolocator study.
+
+
+## Capture site and database
+
+The A Rocha Kenya Conservation centre is located on the coast of Kenya and in the middle of the Northern Zanzibar-Inhambane Coastal Forest Mosaic ecoregion ([3°22'36.3"S 39°59'16.9"E](https://goo.gl/maps/4Lrz8iBHdvjnZCNg9)). This region is recognized for its high biodiversity value [@Marris2010] yet faces increasing habitat fragmentation due to the expansion of agriculture and charcoal burning [@Burgess2000CoastalFO]. The Conservation centre is located on a residential coastal scrub/forest that has been protected from limited habitat change over the last 50 years [@Alemayehu2016], in the effort to preserve the ecosystems for tourism. Mist nets are placed in a nature trail that runs through a small patch of forest managed by the Conservation centre. 
+
+```{r, echo=TRUE}
+specie_name <- "Red-capped Robin Chat"
+
+capture <- read.csv("data/ringing_data.csv") %>%
+  filter(Location == "Mwamba Plot 28, Watamu" | Location == "Mwamba plot 28") %>%
+  filter(!NettingSite %in% c("Beach", "boat shed", "DINING ROOM", "Compost", "by compost", "Kilifi Bofa", "Mwamba Dining Room", "by volunteer rooms", "Spring trap by lamp post", "Office", "Net by bird bath.", "compost site", "Bird Bath")) %>%
+  filter(!SessionNotes %in% c("Net at birdbath; BC = Bernard Chege", "1 net behind birdbath")) %>%
+  mutate(DayOfYear = Julian) %>%
+  mutate(
+    NetsOther = str_replace(NetsOther, "11 total", "11"),
+    NetsOther = str_replace(NetsOther, "10mx3", "30"),
+    NetsOther = str_replace(NetsOther, "10m x3", "11"),
+    NetsOther = str_replace(NetsOther, "2 10m", "20"),
+    NetsOther = str_replace(NetsOther, "1x10m", "10"),
+    NetsOther = str_replace(NetsOther, "10m x1", "10"),
+    NetssOther = str_replace(NetsOther, "10m x 1", "10"),
+    NetsOther = str_replace(NetsOther, "10mx2", "20"),
+    NetsOther = str_replace(NetsOther, "10mx1", "10"),
+    NetsOther = str_replace(NetsOther, "10m x 1", "10"),
+    NetsOther = str_replace(NetsOther, "10x1", "10"),
+    NetsOther = str_replace(NetsOther, "14x1, 10", "24"),
+    NetsOther = str_replace(NetsOther, "14x1,10", "24"),
+    NetsOther = str_replace(NetsOther, "10x3", "30"),
+    NetsOther = replace_na(NetsOther, "0"),
+    NetsOther = as.numeric(NetsOther),
+    NetsLength = Nets6m * 6 + Nets9m * 9 + Nets12m * 12 + Nets18m * 18 + NetsOther,
+    NetsLength = ifelse(NetsLength == 0, NA, NetsLength),
+    NetsDuration = as.POSIXct(NetsClosed) - as.POSIXct(NetsOpen),
+    NetsOpen = hour(as.POSIXct(NetsOpen)) + minute(as.POSIXct(NetsOpen)) / 60,
+    WeatherCat = ifelse(!is.na(Weather), "none", NA),
+    WeatherCat = ifelse(grepl("rain", Weather), "little", WeatherCat),
+    WeatherCat = ifelse(grepl("drizzle", Weather), "little", WeatherCat),
+    WeatherCat = ifelse(grepl("shower", Weather), "little", WeatherCat),
+    WeatherCat = ifelse(grepl("heavy", Weather), "strong", WeatherCat),
+  ) %>%
+  mutate(
+    NetsLength = ifelse(SessionID == 971, NA, NetsLength), # remove aberant data
+    NetsOpen = ifelse(SessionID == 517, 6, NetsOpen), # correct 18:00->6
+    NetsDuration = ifelse(SessionID == 637, NA, NetsDuration), # correct 18:00->6
+    NetsOpen = ifelse(NetsOpen > 7 | NetsOpen < 5.5, NA, NetsOpen),
+    #   NetsDuration = ifelse(!(abs(NetsDuration - median(NetsDuration, na.rm = T)) < 3*sd(NetsDuration, na.rm = T)),NA,NetsDuration),
+  ) %>%
+  arrange(Date) %>%
+  select(SessionID, RingNo, Age, Sex, CommonName, Date, Year, Month, DayOfYear, NetsLength, NetsOpen, NetsDuration, WeatherCat, Weight) %>%
+  group_by(Year) %>% # compute the number of RCRC captured this year so far
+  mutate(
+    n = ifelse(is.na(CommonName) | CommonName != specie_name, 0, 1),
+    CountOfYear = cumsum(n)
+  ) %>% #
+  ungroup() %>%
+  group_by(RingNo) %>%
+  mutate(isFirstCaptureOfYear = !(Year == lag(Year, default = FALSE))) %>% # first capture of RCRC of this year
+  ungroup()
+
+session0 <- capture %>%
+  group_by(Date) %>%
+  summarize(
+    Date = as.Date(first(Date)),
+    DayOfYear = median(DayOfYear),
+    Year = median(Year),
+    Count = sum(CommonName == specie_name, na.rm = TRUE),
+    CountAd = sum(CommonName == specie_name & Age != 0 & Age == 4, na.rm = TRUE),
+    CountJuv = sum(CommonName == specie_name & Age != 0 & Age != 4, na.rm = TRUE),
+    CountFoY = sum(CommonName == specie_name & isFirstCaptureOfYear, na.rm = TRUE),
+    CountFoYAd = sum(CommonName == specie_name & Age != 0 & Age == 4 & isFirstCaptureOfYear, na.rm = TRUE),
+    CountFoYJuv = sum(CommonName == specie_name & Age != 0 & Age != 4 & isFirstCaptureOfYear, na.rm = TRUE),
+    NetsLength = median(NetsLength),
+    NetsOpen = median(NetsOpen),
+    NetsDuration = as.numeric(median(NetsDuration)),
+    WeatherCat = as.factor(first(WeatherCat)),
+    .groups = "drop_last"
+  ) %>%
+  group_by(Year) %>% # compute the number of RCRC capture so far this year
+  mutate(CumCountFoY = cumsum(CountFoY) - ifelse(is.na(CountFoY), 0, CountFoY)) %>%
+  ungroup() %>%
+  arrange(Date)
+
+session <- session0 %>%
+  filter(DayOfYear > 100 & DayOfYear < 340)
+
+tf <- function(t) {
+  paste0(
+    "M=", format(as.POSIXct(Sys.Date() + mean(t, na.rm = T) / 24), "%H:%M", tz = "UTC"), " ; SD=",
+    format(as.POSIXct(Sys.Date() + sd(t, na.rm = T) / 24), "%H:%M", tz = "UTC")
+  )
+}
+```
+
+In this study, we use the ringing dataset from capture sessions conducted regularly from 2002 to present. Up to early 2019, the dataset consists of `r nrow(capture)` entries of `r length(unique(capture$RingNo))` rings covering `r length(unique(capture$CommonName))` species collected during `r nrow(session0)` sessions. The ringing effort presents some temporal variability, as well as variability in the metadata recorded (see [Appendix 1. Data extends]). In general, sessions start at sunrise (`r tf(session0$NetsOpen)`) and last until bird activity slows down (session duration `r tf(session0$NetsDuration)`). On average, a total of `r round(mean(session$NetsLength,na.rm=TRUE))` m (SD=`r round(sd(session$NetsLength,na.rm=TRUE))` m) of nets were used. Descriptive notes on weather conditions were also included and later classified according to their expected influence on the capture rate (none, little, large). We manually checked extreme values in the dataset and removed those that could not be verified.
+In addition, we present the ringing data of 2020, when the geolocators were first deployed. We did not include this data in the fitting of the models but rather used it for comparison and discussion purposes.
+
+In addition, we present the ringing data of 2020, when the geolocators were first deployed. We did not include this data in the fitting of the models but rather used it for comparison and discussion purposes.
+
+```{r, echo=TRUE}
+capture2020 <- read.csv("data/ringing_mwamba_rcrc_2020.csv") %>%
+  filter(Location == "Mwamba") %>%
+  mutate(
+    Date = dmy(date),
+    CloseTime = hour(hm(CloseTime)) + minute(hm(CloseTime)) / 60,
+    NetsOpen = hour(hm(OpenTime)) + minute(hm(OpenTime)) / 60,
+    NetsDuration = CloseTime - NetsOpen,
+    n = !(Notes == "No RCRC"),
+    CountOfYear = cumsum(n),
+    isFirstCaptureOfYear = !NewRetrap == "R",
+  ) %>%
+  select(RingNo, Age, Date, NetsOpen, NetsDuration, Notes, isFirstCaptureOfYear, CountOfYear)
+
+session2020 <- capture2020 %>%
+  group_by(Date) %>%
+  summarize(
+    DayOfYear = as.numeric(format(Date, "%j")),
+    Count = sum(!(Notes == "No RCRC"), na.rm = T),
+    CountFOY = sum(!(Notes == "No RCRC") & isFirstCaptureOfYear, na.rm = T),
+    NetsOpen = median(NetsOpen),
+    NetsDuration = median(NetsDuration),
+    .groups = "drop_last"
+  ) %>%
+  unique() %>%
+  mutate(
+    CumCountFoY = cumsum(CountFOY),
+  )
+``` 
+
+
+## Predicting the number of birds to be equipped
+To address the question of how many birds can be equipped, we first model the number of new RCRC captured per session and then compute the total number of RCRC per year given various ringing scenarios. As an individual RCRC can only be equipped once a year, we must estimate the number of birds that have not yet been captured in the same year (i.e., new bird) rather than the count all RCRC. 
+In the first step, we model this number using a generalized additive model (GAM), assuming the number of captures follows a Poisson distribution. To avoid zero counts from being too frequent, we only fitted the model on the surveys performed between the 10th of April to the 6th of December. The predictor variables tested in the model are (1) year, (2) day-of-year, (3) duration of the session, (4) total length of nets, (5) starting time, (6) weather conditions and (7) number of unique RCRC previously captured during the year. After testing several parametrizations of the model (see SM2), we retained the capture model that included day-of year as a smooth function, year as a random fixed effect and total length of nets, total duration, and number of unique RCRC as linear terms:
+`CountFoY ~ s(Year) + s(DayOfYear) + NetsDuration + NetsLength + CumCountFoY`.
+
+To overcome the lack of sufficient data for the duration, start time and length of nets, we used multiple imputation methods [@Azur2011] to generate 30 sets of data without any missing values. For each of these sets, a GAM model was fitted.
+
+```{r, echo=TRUE, warning=F}
+session.imputed <- session %>%
+  mice(print = F, m = 30, seed = 123456789) %>%
+  complete("all")
+```
+
+
+```{r, echo=TRUE, warning=F}
+mod <- list()
+modAd <- list()
+modJuv <- list()
+i <- 0
+for (d in session.imputed) {
+  i <- i + 1
+  a <- d %>% mutate(Year = factor(Year))
+  mod[[i]] <- gam(CountFoY ~ s(Year, bs = "re") + s(DayOfYear) + NetsDuration + NetsLength + CumCountFoY, family = poisson(), data = a)
+  modAd[[i]] <- gam(CountFoYAd ~ s(Year, bs = "re") + s(DayOfYear) + NetsDuration + NetsLength + CumCountFoY, family = poisson(), data = a)
+  modJuv[[i]] <- gam(CountFoYJuv ~ s(Year, bs = "re") + s(DayOfYear) + NetsDuration + NetsLength + CumCountFoY, family = poisson(), data = a)
+}
+```
+
+In the second step, we predict the total number of RCRC that can be captured over one year as a function of a ringing scenario. A ringing scenario consists of a schedule of ringing sessions over the year together with specific characteristics (session duration, length of nets, etc.). We estimate the total number as the cumulative sum of the estimated new RCRC of the GAM model fitted above for each successive session. This operation has been done iteratively because the GAM model depends on the number of unique RCRC previously captured during the year.
+In order to plan an optimal ringing scenario, we evaluate the impact of various components of the ringing effort on the total number of birds captured. The different scenarios tested include:
+
+-	default: 4 hr-ringing sessions every 10 days with 156 m of nets 
+-	6 hrs: same as default with longer ringing sessions (from 4 to 6 hrs)
+-	200m: same as default with one longer total additional nets length (156 to to 200 m)
+-	optimized schedule: same as default with weekly ringing sessions from mid-May to early July, bimonthly sessions otherwise
+
+Finally, in order to validate the model, we compare the actual number of RCRC captured in 2020 with the corresponding model prediction using the same schedule, session duration and length of nets.
+
+
+```{r, echo=TRUE, warning=F}
+predictf <- function(modf, dayf, netsLengthf, netsDurationf, scenariof) {
+  scenario <- data.frame(
+    Year = 0,
+    DayOfYear = dayf,
+    NetsLength = netsLengthf,
+    NetsDuration = netsDurationf,
+    scenario = scenariof,
+    CountFoY = 0,
+    CumCountFoY = 0
+  )
+
+  for (i in 1:nrow(scenario)) {
+    scenario$CountFoY[i] <- lapply(modf, function(x) {
+      predict(x, scenario[i, ], type = "response")
+    }) %>%
+      unlist() %>%
+      mean()
+    if (i < nrow(scenario)) {
+      scenario$CumCountFoY[i + 1] <- scenario$CountFoY[i] + scenario$CumCountFoY[i]
+    }
+  }
+  scenario
+}
+
+bind_pred <- bind_rows(
+  predictf(mod, dayf = seq(100, 365, 10), netsLengthf = 156, netsDurationf = 4, scenariof = "default"),
+  predictf(mod, dayf = seq(1, 365, 10), netsLengthf = 156, netsDurationf = 6, scenariof = "6h"),
+  predictf(mod, dayf = seq(1, 365, 10), netsLengthf = 200, netsDurationf = 4, scenariof = "200m"),
+  predictf(mod, dayf = c(seq(1, 127, 14), seq(130.5, 183, 7), seq(190, 365, 14)), netsLengthf = 156, netsDurationf = 6, scenario = "optimized"),
+  predictf(mod,
+    dayf = session2020$DayOfYear, netsLengthf = 156, netsDurationf = session2020$NetsDuration,
+    scenario = "2020"
+  ),
+)
+pred_Ad <- predictf(modAd, dayf = seq(100, 365, 10), netsLengthf = 156, netsDurationf = 4, scenariof = "default")
+pred_Juv <- predictf(modJuv, dayf = seq(100, 365, 10), netsLengthf = 156, netsDurationf = 4, scenariof = "default")
+```
+
+## Maximizing geolocator retrieval
+
+In this study we choose to focus on two parameters to maximize bird retrieval: the time of year and the age class (adult or juvenile). In this study, we carried out analyses comparing only adults and juveniles because it is not possible to determine the sex of a bird in hand. The retrieval probability is estimated by modelling the binomial response of whether a captured bird is retrieved in the following years: we consider that an individual is retrieved if the bird has been recaptured at least once in any of the following years, and this is independent from whether it was already captured in the past. We modelled the count of adults and juveniles per session separately to reveal the influence of age on recapture rates. The weight of the bird was left out of the model as it showed little to no effect on the recapture rate (see Figure \@ref(fig:weight-recapture)). Additionally, we also compare the recapture rate for RCRC captured for the first time and those which have already been equipped. 
+
+
+```{r, echo=TRUE, warning=FALSE}
+history <- capture %>%
+  filter(CommonName == specie_name) %>%
+  arrange(Date) %>%
+  group_by(RingNo) %>%
+  mutate(
+    n = 1,
+    retrap_i = cumsum(n) - 1,
+    isRetrap = if_else(is.na(lead(retrap_i) > retrap_i), 0, 1),
+    duration_next_capture = as.numeric(difftime(lead(Date), Date, units = "days")),
+    duration_last_capture = as.numeric(difftime(last(Date), Date, units = "days")),
+    nextSeason = last(Year) > Year,
+    Yearsince = Year - first(Year),
+    isAdult = ifelse(Age == 4, TRUE, FALSE),
+    isARetrap = first(Year) < Year
+  ) %>%
+  select(RingNo, Date, Year, DayOfYear, retrap_i, isRetrap, isARetrap, nextSeason, duration_next_capture, duration_last_capture, isAdult, Yearsince, Weight) %>%
+  arrange(RingNo)
+
+modr <- gam(history, formula = nextSeason ~ s(DayOfYear), family = "binomial")
+modrA <- gam(history %>% filter(isAdult), formula = nextSeason ~ s(DayOfYear), family = "binomial")
+modrJ <- gam(history %>% filter(!isAdult), formula = nextSeason ~ s(DayOfYear), family = "binomial")
+modrO <- gam(history %>% filter(retrap_i > 0), formula = nextSeason ~ s(DayOfYear), family = "binomial")
+modrN <- gam(history %>% filter(retrap_i == 1), formula = nextSeason ~ s(DayOfYear), family = "binomial")
+
+predictmodr <- data.frame(DayOfYear = seq(min(history$DayOfYear), max(history$DayOfYear))) %>%
+  mutate(
+    r.fit = predict(modr, ., type = "response"),
+    r.se.fit = predict(modr, ., type = "response", se.fit = T) %>% .$se.fit,
+    rA.fit = predict(modrA, ., type = "response"),
+    rA.se.fit = predict(modrA, ., type = "response", se.fit = T) %>% .$se.fit,
+    rJ.fit = predict(modrJ, ., type = "response"),
+    rJ.se.fit = predict(modrJ, ., type = "response", se.fit = T) %>% .$se.fit,
+  )
+```
+
+All computation was performed on R [@team2013r], using the MCGV package [@wood2017generalized] for GAM, and the Mice Package [@Buuren2011] for the imputation. 
+
+
+# Results
+
+
+## Predicting the number of birds to be equipped
+
+As any typical migrant, the number of RCRC captured per session shows a strong dependence with the day of year (P<.001), with a bi-modal shape including a peak passage in early June with almost three RCRC per session and a second smaller peak in mid-September with two birds per session on average (Figure [\@ref(fig:seasonal-variation-counts)]). The number of new captures per session was found to be dependent with year (P<.001), length of the nets (P<.001), duration of sessions (P<.01) and number of previously captured RCRC (P<.1).
+Starting time was found to be not significant (P<1) and was therefore excluded from the final model as RCRC are generally active and caught equally throughout the morning and no session was held later in the morning or afternoon. Weather category was also found to be not significant (P<1) and consequently excluded.
+Five different ringing scenarios were used to (1) estimate the total number of unique RCRC which can be captured in a year and (2) compare different ringing strategies and define an optimal scenario (Figure [\@ref(fig:total-rcrc-captured)]). 
+
+Compared with the total number of birds caught with the default scenario (`r bind_pred %>% filter(scenario=="default") %>% .$CumCountFoY %>% max() %>% round()` birds), increasing the duration of capture sessions by two hours (‘6hr’) or adding 44m of additional nets (‘200m’) results in respectively 1 and 2 more birds caught. This is likely because RCRC are mostly active in the early hours of the day and additional nets are placed in sub-optimal habitats. However, the optimized scenario yields many more birds, with a total of `r bind_pred %>% filter(scenario=="optimized") %>% .$CumCountFoY %>% max() %>% round()` birds captured in fewer sessions (`r bind_pred %>% filter(scenario=="optimized") %>% nrow()` instead of `r bind_pred %>% filter(scenario=="default") %>% nrow()`). 
+In 2020, `r capture2020 %>% nrow()` capture sessions were held with 156 m of mist nets with an average duration of 3 hours 45 minutes (SD: 0:59). As of 1 November, a total of `r sum(session2020$Count)` RCRC were captured from `r sum(session2020$CountFOY)` unique individuals. For the exact same information, the model predicted an expected total of `r bind_pred %>% filter(scenario=="2020") %>% .$CumCountFoY %>% max() %>% round()` unique RCRC. The arrival date proved to be earlier than the average and the numbers appeared to be higher than average at the beginning of the season. This could be due to a particularly good breeding season as attested by the high number of juveniles caught during this period.  
+
+
+```{r total-rcrc-captured, echo=TRUE, warning=FALSE, fig.cap = "Model predictions of the total unique RCRC caught along a year following different scenarios. The default scenario consists of 4hr ringing sessions using 156m of nets every 10 days. ‘6h’ and ‘225m’ are modifications of the default scenario, and ‘optimized’ increases the number of sessions (to every week) during the peak passage (mid-May – July) and decreases them (to every 2 weeks) during the rest of the year. Finally, using the exact date, duration, and net length used in 2020, the model prediction ‘2020 model’ can be compared to the actual data (‘2020 data’).", fig.asp=0.56, fig.align = 'center', fig.width=6}
+p <- bind_pred %>%
+  ggplot() +
+  # geom_ribbon( aes(group = scenario, color = factor(scenario), x=DayOfYear, ymin = fit.cumsum-se.fit.cumsum, ymax = fit.cumsum+se.fit.cumsum), alpha=0.1, color = NA) +
+  # geom_step(   aes(group = scenario, color = factor(scenario), x=DayOfYear, y=fit.cumsum), size=1)+
+  # geom_ribbon( aes(group = scenario, color = factor(scenario), x=DayOfYear, ymin = fit.cumsum.FOY-3*se.fit.cumsum.FOY, ymax = fit.cumsum.FOY+3*se.fit.cumsum.FOY), alpha=0.1, color = NA) +
+  geom_line(aes(group = scenario, color = factor(scenario), x = DayOfYear, y = CumCountFoY), size = 1) +
+  geom_point(aes(group = scenario, color = factor(scenario), x = DayOfYear, y = CumCountFoY), size = 2) +
+  geom_line(data = session2020, aes(x = DayOfYear, y = CumCountFoY), size = 1) +
+  geom_point(data = session2020, aes(x = DayOfYear, y = CumCountFoY), size = 2) +
+  labs(x = "Day of Year", y = "Cumulative number of unique RCRC captured") +
+  scale_x_continuous(
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b"),
+    expand = c(0, 0),
+    limits = c(100, 365)
+  ) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(0, 25)) +
+  theme(aspect.ratio = 9 / 16, legend.position = "top")
+
+# ggsave(filename = 'figures/figure3.pdf', plot = print(p), width = 16, height=9, units = "cm")
+# print(p)
+ggplotly(p, width = wid, height = hei)
+```
+
+
+
+
+## Maximizing geolocator retrieval
+```{r}
+ring <- capture %>%
+  filter(CommonName == specie_name) %>%
+  arrange(Date) %>%
+  group_by(RingNo) %>%
+  mutate(
+    n = 1,
+    retrap_i = cumsum(n) - 1,
+    isRetrap = if_else(is.na(lead(retrap_i) > retrap_i), 0, 1),
+    nextSeason = last(Year) > Year,
+    Yearsince = Year - first(Year),
+    isAdult = ifelse(Age == 4, TRUE, FALSE),
+    isARetrap = first(Year) < Year
+  ) %>%
+  select(RingNo, Date, Year, DayOfYear, retrap_i, isRetrap, isARetrap, nextSeason, isAdult, Yearsince, Weight) %>%
+  arrange(RingNo)
+```
+
+Over the `r  nrow(ring %>% count)` unique RCRC individuals captured in the dataset, `r nrow(ring %>% filter(retrap_i<1 & isRetrap))` (`r round(mean(ring %>% filter(retrap_i<1) %>% .$isRetrap)*100)`%) were recaptured at least once (including recapture the same year). When considering the `r ring %>% nrow()` capture events (including same individuals), the general recapture rate increases to `r round(mean(ring %>% .$isRetrap)*100)`%. However, looking at captures with recapture in any subsequent year, the recapture rate is `r round(mean(ring %>% .$nextSeason)*100)`%. In this study, we consider the retrieval rate as a recapture any subsequent years (latter definition), similar to the procedure employed with geolocators. 
+
+```{r, echo=F}
+prop.test(x = c(sum(ring %>% filter(isAdult) %>% .$nextSeason), sum(ring %>% filter(!isAdult) %>% .$nextSeason)), n = c(nrow(ring %>% filter(isAdult)), nrow(ring %>% filter(!isAdult))), alternative = c("greater"))
+``` 
+
+In general, adults show a slightly higher recapture rate (`r round(mean(ring %>% filter(isAdult) %>% .$nextSeason)*100)`% ; n=`r nrow(ring %>% filter(isAdult))`) than juveniles (`r round(mean(ring %>% filter(!isAdult) %>% .$nextSeason)*100)`% ; n=`r nrow(ring %>% filter(!isAdult))`), but statistically not significant (test of proportions, P<.1). When modelled over the day of year (Figure \@ref(fig:recapture-rate)a), the recapture rate in subsequent years shows that birds equipped later in the year are twice as likely to be recaptured, with a recapture rate increasing from 25% to almost 50%. Separating adults from juveniles allows us to identify further trends. The increase in juveniles’ recapture rate is not significant. By contrast, adults show a clear increase from May to August, before stabilising from September to October. Modelling the number of captures of adults and juveniles (Figure \@ref(fig:recapture-rate)b), we observe an earlier arrival of juveniles (late May vs early June for adults) and earlier departure in August, while adults show a second peak early October.
+
+Finally, a RCRC which has already been captured in the past has a higher recapture rate (`r round(mean(ring %>% filter(retrap_i>0) %>%  .$nextSeason)*100)`%) compared to a bird without a ring (`r round(mean(ring %>% filter(retrap_i==0) %>%  .$nextSeason)*100)`). We did not find a significant effect of weight on retrieval rate (see Figure \@ref(fig:weight-recapture)) which is known to usually impact survival rate [e.g., @Saether1989].
+
+```{r recapture-rate, echo=TRUE, warning=FALSE, fig.cap="Comparison of adult (green) and juvenile (yellow) trend in (a) recapture rate in subsequent year and (b) number of captures per session throughout the year.", fig.asp=1.125, fig.align = 'center', fig.width=6}
+
+p1 <- ggplot() +
+  geom_point(data = history, aes(x = DayOfYear, y = as.numeric(nextSeason), color = isAdult), size = 2) +
+  geom_line(data = predictmodr, aes(x = DayOfYear, y = rJ.fit), color = wes_palette("Cavalcanti1")[1], size = 1) +
+  geom_ribbon(data = predictmodr, aes(x = DayOfYear, ymin = rJ.fit - 3 * rJ.se.fit, ymax = rJ.fit + 3 * rJ.se.fit), alpha = 0.3, fill = wes_palette("Cavalcanti1")[1]) +
+  geom_line(data = predictmodr, aes(x = DayOfYear, y = rA.fit), color = wes_palette("Cavalcanti1")[2], size = 1) +
+  geom_ribbon(data = predictmodr, aes(x = DayOfYear, ymin = rA.fit - rA.se.fit, ymax = rA.fit + rA.se.fit), alpha = 0.3, fill = wes_palette("Cavalcanti1")[2]) +
+  geom_line(data = predictmodr, aes(x = DayOfYear, y = r.fit), color = wes_palette("Cavalcanti1")[4], size = 2) +
+  geom_ribbon(data = predictmodr, aes(x = DayOfYear, ymin = r.fit - r.se.fit, ymax = r.fit + r.se.fit), alpha = 0.3, fill = wes_palette("Cavalcanti1")[4]) +
+  scale_color_manual(values = wes_palette("Cavalcanti1")) +
+  scale_x_continuous(
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b"),
+    # expand = c(0,0),
+    minor_breaks = c(),
+    limits = c(100, 350)
+  ) +
+  scale_y_continuous(
+    minor_breaks = c(),
+    # expand = c(0,0),
+    labels = scales::percent
+  ) +
+  theme(aspect.ratio = 9 / 16, legend.position = "none") +
+  labs(y = "Probability of Recapture", color = "Adult", x = "Day of Year")
+
+p2 <- session %>%
+  ggplot() +
+  geom_point(aes(x = DayOfYear, ifelse(CountAd > 2, 2, CountAd), size = CountAd), color = wes_palette("Cavalcanti1")[2]) +
+  geom_point(aes(x = DayOfYear, y = ifelse(CountJuv > 2, 2, CountJuv), size = CountJuv), color = wes_palette("Cavalcanti1")[1]) +
+  geom_line(data = pred_Juv, aes(x = DayOfYear, y = CountFoY), color = wes_palette("Cavalcanti1")[2], size = 1) +
+  geom_line(data = pred_Ad, aes(x = DayOfYear, y = CountFoY), color = wes_palette("Cavalcanti1")[1], size = 1) +
+  # geom_point(data = dm2020s, aes( x=DayOfYear, y=ifelse(CountJuv>2,2,CountJuv), size=CountJuv),stroke=0, colour=wes_palette('Cavalcanti1')[5])+
+  # geom_point(data = dm2020s, aes( x=DayOfYear, y=ifelse(CountAd>2,2,CountAd), size=CountAd),stroke=0, colour=wes_palette('Cavalcanti1')[4] )+
+  labs(x = "Day of Year", y = "Count") +
+  scale_x_continuous(
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b"),
+    minor_breaks = c(),
+    # expand = c(0,0),
+    limits = c(100, 365)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 2),
+    # expand = c(0,0),
+    minor_breaks = c()
+  ) +
+  theme(aspect.ratio = 9 / 16, legend.position = "none")
+
+p <- arrangeGrob(p1, p2)
+
+subplot(ggplotly(p1, width = wid, height = hei * 2), ggplotly(p2, width = wid, height = hei * 2), shareX = T, nrows = 2)
+```
+
+## Informing geolocator deployment
+We illustrate how the results above have informed the practical deployment of geolocators on RCRC in 2020 and following years. In light of the results, rather than increasing session duration or net length, we favoured increasing the frequency of ringing sessions when numbers are highest (mid-May to early July). 
+Results show that while waiting for July/August seemed preferable to increase the retrieval rate, the number of birds captured decreases strongly in this period. We thus sought to find a trade-off between deploying all the devices and equipping as many as possible later in the year by releasing some birds captured earlier in the year without a device. In order to test the hypothesis of variable departure/arrival dates based on age, we wanted to equip both juveniles and adults. We therefore only equipped six RCRC (of a total of 15 geolocators) before mid-June, when juveniles were more common to keep enough geolocators for July and August, when adults were more common.
+
+
+# Discussion
+
+The new method presented in this study leverages ringing datasets to enable fact-based planning of a geolocator studies. The main objective is to support cost-effective planning of fieldwork and to determine the optimal number of logging devices, taking into account the specific research question. This relatively simple method does not replace or compete with the various more complex existing capture-recapture models [@mccrea2014analysis].
+
+## Predicting the number of birds to be equipped
+
+Varying the different components of the survey design can greatly affect the number of captures, and in turn the cost-efficiency of a study [e.g., @Lieury2017]. Our method allows to test the effect of each effort component on the total number of captures, thus enabling researchers to refine the survey design in view of optimizing number of captures. In the RCRC case study, we found that increasing net length or session duration carried limited added-value compared to increasing the frequency of ringing sessions when bird numbers are highest (mid-May to early July). The pre-analysis presented here is particularly useful in contexts where the ringing database is limited, or past ringing effort has been variable (e.g., [@Ruiz-Gutierrez2012]. 
+
+## Maximizing geolocator retrieval
+
+For the geolocator study to be successful, not only do we need to maximize the number of birds equipped (with minimal ringing effort), but we also need to optimize the device retrieval rate. Modelling the geolocator retrieval probability does not need to separate the survival, recapture and emigration rates. Therefore, a complex capture recapture model [@mccrea2014analysis] was not required. Instead, we use a simple approach able to identify the time of year and class of bird which yield the highest geolocator retrieval rates. In the case of the Red-capped Robin-chats, retrieval is highest among adults, which is typically the case for birds [e.g., @Gardali2003], and among birds who have already been ringed in the past. The results provided useful conclusions to adjust the timing and intensity of the field work, almost doubling the expected logger retrieval rate. 
+The approach followed in this paper contains some limitations. Firstly, a bird was considered retrieved if it was captured again in any year following the initial capture. However, for a geolocator study, the retrieval needs to happen within the duration of the study. The retrieval rate of the full dataset (30%) reduces to 19% when restricting to retrievals taking place the following year, 26% for the following two years, and 28% for the following three years. This suggests that ringing should continue for at least two years following equipment to benefit from maximal geolocator data. Secondly, by using retrieval data from the ringing database as a proxy for retrievals involving geolocators, we ignore the effect geolocators may have on survival compared to ringed birds [e.g., @Brlik2020;@Streby2015;@Weiser2015]. Therefore, it does not replace the need for a control group. 
+The potential weight dependent impact of geolocator on survival [e.g., @Brlik2020]  would not be accounted for in this current analysis and would result in preference of equipment of heavier bird. 
+ Finally, equipping specific classes of birds needs to be carefully considered in light of the research question. Geolocator studies are inherently biased in that we only learn about birds that (1) have initially been captured in the mist net, (2) have survived until the subsequent year, and (3) have come back to the exact same area. Our approach relies on the fact that individual bird respond differently to these effects based on their age, sex or weight. Targeting specific classes can only accentuates the biases inherent to geolocator studies. This should be duly acknowledged in the study and accounted for in the analysis. 
+
+## Outlook
+
+Although the model and results of this study are tailored to the specific case of the RCRC on coastal Kenya, the application of this methodology can be extended to other situations where some historical ringing data is available for a given study site and species. In general, our methodology is only applicable for cases where the deployment of geolocators is performed with a similar protocol (e.g., mist net, nest trap, spring nest trap) and context (e.g., place, time, general ringing effort) as the ringing database. In this study, we carried out analyses comparing only adults and juveniles because it is not possible to determine the sex of a bird in hand. The same analysis can be performed on any class of bird identifiable in hand (sex, molt stage, breeding status, subspecies). The approach presented can be applied to any study relying on the recapture of specific individuals (e.g., archival GPS, [@Hallworth2015]).  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Appendix
+
+## Appendix 1. Data extends
+
+The capture sessions are relatively well-spread throughout the year (y-axis in Figure \@ref(fig:coverage)), although with a slightly higher intensity in March-April than June-July or December-January. The distribution is more heterogeneous when comparing different years (x-axis in Figure \@ref(fig:coverage)): there is very good coverage between 2003 and 2007, variable from 2008 to 2012, and relatively stable since then. 
+
+```{r coverage, echo=TRUE, fig.cap = "Distribution of the ringing sessions according to year and month. Colour scale indicates the number of ringing sessions.", fig.width = 12, fig.height=10, fig.align = 'center'} 
+
+d_sesMY <- capture %>%
+  group_by(SessionID) %>%
+  summarise(Month = first(Month), Year = first(Year), .groups = "drop") %>%
+  group_by(Month, Year) %>%
+  summarise(nb = n(), .groups = "drop")
+
+p1 <- ggplot(d_sesMY, aes(x = Year, y = Month, color = nb)) +
+  geom_point(size = 10, shape = 15) +
+  scale_colour_gradientn(colours = brewer.pal(9, "YlGnBu")) +
+  coord_fixed() +
+  scale_y_continuous(breaks = 1:12) +
+  scale_x_continuous(breaks = min(d_sesMY$Year):max(d_sesMY$Year))
+p3 <- ggplot(d_sesMY, aes(x = Year)) +
+  geom_histogram(bins = length(min(d_sesMY$Year):max(d_sesMY$Year))) +
+  scale_x_continuous(breaks = min(d_sesMY$Year):max(d_sesMY$Year))
+p2 <- ggplot(d_sesMY, aes(x = Month)) +
+  geom_histogram(bins = 12) +
+  coord_flip() +
+  scale_x_continuous(breaks = 1:12)
+
+p <- arrangeGrob(p1, p2, p3, layout_matrix = cbind(c(2, 2, 2, 6), c(1, 1, 1, 3), c(1, 1, 1, 3), c(1, 1, 1, 3)))
+
+# ggsave(filename = 'figures/figureSM1.pdf', plot = p, width = 50, height=50, units = "cm")
+grid.arrange(p)
+# subplot(ggplotly(p1), ggplotly(p2),ggplotly(p3), nrows=1)
+```
+
+Additional information for each session was available for some sessions: start time (data available for `r round(sum(!is.na(session$NetsOpen))/nrow(session)*100 )`% of the sessions), closing time (`r round(sum(!is.na(session$NetsDuration))/nrow(session)*100 )`%), sum of net lengths (`r round(sum(!is.na(session$NetsLength))/nrow(session)*100 )`%), weather conditions (`r round(sum(!is.na(session$WeatherCat))/nrow(session)*100 )`%).
+
+```{r metadata, echo=TRUE, warning=FALSE, fig.cap = "Histograms of the metadata collected for each ringing session (N=317) of (a) total length of nets (N=73), (b) duration of ringing session (N=124), (c) weather category (N=143) and (d) time of session start (N=235).", fig.asp=0.56, fig.align = 'center', fig.width=6}
+plot1 <- session %>% ggplot() +
+  geom_histogram(aes(x = NetsLength), binwidth = 25) +
+  scale_x_continuous(breaks = seq(0, 250, 50), minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0))
+plot2 <- session %>% ggplot() +
+  geom_histogram(aes(x = NetsDuration), binwidth = 0.5) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0))
+plot3 <- session %>%
+  filter(!is.na(WeatherCat)) %>%
+  ggplot() +
+  geom_histogram(aes(x = WeatherCat), stat = "count") +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0))
+plot4 <- session %>% ggplot() +
+  geom_histogram(aes(x = NetsOpen), binwidth = 0.25) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0))
+p <- arrangeGrob(plot1, plot2, plot3, plot4, ncol = 2)
+
+# ggsave(filename = 'figures/figureSM2.pdf', plot = p, width = 16, height=9, units = "cm")
+# grid.arrange(p)
+subplot(ggplotly(plot1, width = wid, height = hei), ggplotly(plot2, width = wid, height = hei), ggplotly(plot3, width = wid, height = hei), ggplotly(plot4, width = wid, height = hei), nrows = 2)
+```
+
+```{r, fig.cap='Sessions dataset'}
+DT::datatable(session %>% arrange(Date),
+  width = "100%",
+  extensions = "Buttons",
+  options = list(scrollX = TRUE, dom = "Bfrtip", buttons = c("csv"))
+)
+```
+
+```{r, fig.cap='Capture dataset'}
+DT::datatable(capture %>% arrange(Date),
+  width = "100%",
+  extensions = "Buttons",
+  options = list(scrollX = TRUE, dom = "Bfrtip", buttons = c("csv"))
+)
+```
+
+```{r, fig.cap='2020 dataset'}
+DT::datatable(capture2020 %>% arrange(Date),
+  width = "100%",
+  extensions = "Buttons",
+  options = list(scrollX = TRUE, dom = "Bfrtip", buttons = c("csv"), pageLength = 5)
+)
+```
+
+
+## Appendix 2. Capture model
+
+Before fitting the GAM modelling the count of new RCRC captured per session, we explored the response of each of the variables separately with a GAM or GLM  (Figure \@ref(fig:fit-meta)).
+
+ 1. **Year** (Figure\@ref(fig:fit-meta)a). A general decline in the overall number of birds is observed over the 20 years of the dataset. However, this trend was not estimated to be realistic but possibly due to change in survey effort or net location. Year was included as a random fixed effect.
+ 2. **Day-of-year** (Figure \@ref(fig:fit-meta)b). Day-of-year has a strong influence on the number of captures and varies non-linearly. This variable is thus included in the model as a smoothing term.
+ 3. **Duration** (Figure \@ref(fig:fit-meta)c). The duration of the session computed as the difference between closing time and opening time shows a positive correlation with the number of captures. It is thus included in the model as a linear term. 
+ 4. **Net opening time** (Figure \@ref(fig:fit-meta)d). The fit of the opening time seems to indicate a higher capture rate for sessions starting later. This relationship is contrary to common knowledge and considered non-meaningful. It is thus not retained for the model.
+ 5. **Sum of net lengths** (Figure \@ref(fig:fit-meta)e). Between 50 and 200m, the fit shows an increase of captures as the total length of the nets increases. Yet, above 200m, the fit shows a stabilisation of the count. This is explained by the fact that the nets added above 200m are located in habitats which are not ideal for RCRC and thus do not contribute to an increase in capture. This term is included as a smoothing term.
+ 6. **Weather categories** (Figure \@ref(fig:fit-meta)f). The weather categories do not show a clear pattern and are thus not included in the model. 
+
+
+```{r fit-meta, echo=TRUE, warning=FALSE, fig.cap = "Number of RCRC captured by session as a function of (a) total length of nets, (b) duration of ringing session, (c) weather category and (d) time of session start. The red line with shaded area is a smoothed curved fitted on the data (GAM or GLM)", fig.asp=0.84, fig.align = 'center', fig.width=12}
+
+plot1 <- # ggplot(data=predictmod %>% filter(date<'2019-01-01' & date>'2002-01-01'),aes(x=date)) +
+  ggplot(data = session %>% filter(Date > "2002-01-01"), aes(x = Year, y = Count)) +
+  geom_smooth(method = "gam", formula = y ~ s(x), method.args = list(family = "poisson")) +
+  # geom_point(data= session, aes(Year, Count)) +
+  geom_point(data = (session %>% filter(Date > "2002-01-01") %>% mutate(Countt = ifelse(Count > 6, 6, Count)) %>% group_by(Year, Countt) %>% tally() %>% filter(!is.na(Year))), aes(x = Year, y = Countt, size = n, color = n)) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0, 25)) +
+  geom_point(data = session2020 %>% mutate(Count = ifelse(Count > 6, 6, Count)) %>% group_by(Count) %>% tally(), aes(x = 2020, y = Count, size = n)) +
+  ylab("Number of RCRC capture per session") +
+  xlab("(a) Year") +
+  theme(aspect.ratio = 9 / 16)
+
+plot2 <- session %>% ggplot(aes(y = Count, x = DayOfYear)) +
+  geom_smooth(method = "gam", formula = y ~ s(x), method.args = list(family = "poisson")) +
+  geom_point(data = (session %>% mutate(nlg = round(DayOfYear / 31) * 31, Countt = ifelse(Count > 6, 6, Count)) %>% group_by(nlg, Countt) %>% tally() %>% filter(!is.na(nlg))), aes(x = nlg, y = Countt, size = n, color = n)) +
+  scale_x_continuous(
+    minor_breaks = c(), expand = c(0, 0),
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b")
+  ) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0, 25)) +
+  theme(aspect.ratio = 9 / 16) +
+  xlab("(b) DayOfYear")
+
+
+plot3 <- session %>% ggplot(aes(y = Count, x = NetsDuration)) +
+  geom_point(data = (session %>% mutate(nlg = round(NetsDuration / 0.5) * 0.5, Countt = ifelse(Count > 6, 6, Count)) %>% group_by(nlg, Countt) %>% tally() %>% filter(!is.na(nlg))), aes(x = nlg, y = Countt, size = n, color = n)) +
+  geom_smooth(method = "glm", formula = y ~ x, method.args = list(family = "poisson")) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0, 25)) +
+  theme(aspect.ratio = 9 / 16) +
+  xlab("(c) Duration")
+
+plot4 <- session %>% ggplot(aes(y = Count, x = NetsOpen)) +
+  geom_smooth(formula = y ~ x, method = "glm", method.args = list(family = "poisson")) +
+  geom_point(data = (session %>% mutate(nlg = round(NetsOpen / 0.125) * 0.125, Countt = ifelse(Count > 6, 6, Count)) %>% group_by(nlg, Countt) %>% tally() %>% filter(!is.na(nlg))), aes(x = nlg, y = Countt, size = n, color = n)) +
+  scale_x_continuous(minor_breaks = seq(5.5, 7, 0.125), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0, 25)) +
+  theme(aspect.ratio = 9 / 16) +
+  xlab("(d) Net opening time")
+
+plot5 <- session %>% ggplot(aes(y = Count, x = NetsLength)) +
+  geom_smooth(method = "gam", formula = y ~ s(x, k = 2), method.args = list(family = "poisson")) +
+  geom_point(data = (session %>% mutate(nlg = round(NetsLength / 25) * 25, Countt = ifelse(Count > 6, 6, Count)) %>% group_by(nlg, Countt) %>% tally() %>% filter(!is.na(nlg))), aes(x = nlg, y = Countt, size = n, color = n)) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour"), limits = c(0, 25)) +
+  theme(aspect.ratio = 9 / 16) +
+  xlab("(e) Sum of net lengths")
+
+plot6 <- session %>%
+  filter(!is.na(WeatherCat)) %>%
+  ggplot(aes(x = Count, fill = WeatherCat)) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(-1, 7)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(0, 25)) +
+  theme(aspect.ratio = 9 / 16) +
+  coord_flip() +
+  xlab("(f) Weather categories")
+
+p <- arrangeGrob(plot1, plot2, plot3, plot4, plot5, plot6, ncol = 2, nrow = 3)
+
+# ggsave(filename = 'figures/figureSM3.pdf', plot = p, width = 16*2, height=9*3, units = "cm")
+
+# grid.arrange(p)
+subplot(ggplotly(plot1, width = wid, height = hei * 3 / 2),
+  ggplotly(plot2, width = wid, height = hei * 3 / 2),
+  ggplotly(plot3, width = wid, height = hei * 3 / 2),
+  ggplotly(plot4, width = wid, height = hei * 3 / 2),
+  ggplotly(plot5, width = wid, height = hei * 3 / 2),
+  ggplotly(plot6, width = wid, height = hei * 3 / 2),
+  nrows = 3
+)
+```
+
+Model fit summary for the final model
+
+```{r, fig.asp=0.84,fig.align = 'center', fig.width=6, fig.cap="Model fit"}
+summary(mod[[1]])
+par(mfrow = c(3, 2), mar = c(2, 2, 0, 0))
+visreg(mod[[1]], scale = "response", ylim = c(0, 6))
+# plot(mod[[1]],all.terms = T, scale=0, shade=T)
+```
+
+Model fit summary for the model including all possible variables for comparison
+
+```{r, echo=TRUE, fig.asp=0.84, fig.align = 'center', fig.width=6, fig.cap="Model fit including all variables"}
+a <- session.imputed[[1]]
+tmp <- gam(CountFoY ~ s(Year) + s(DayOfYear) + NetsDuration + NetsLength + NetsOpen + WeatherCat + CumCountFoY, family = poisson(), data = a)
+summary(tmp)
+
+par(mfrow = c(4, 2), mar = c(2, 2, 0, 0))
+visreg(tmp, scale = "response", ylim = c(0, 9))
+```
+
+
+```{r seasonal-variation-counts, echo=TRUE, warning=FALSE, fig.cap = "Seasonal variation in the number of captured RCRC per session. Points represent actual data points while the black line is the model estimate for the default/average case (156m, 4hr) with its corresponding uncertainty illustrated as shaded area. Sessions with 6 or more RCRC are illustrated on the “6+” line but with proportionate size and colour. Black points correspond to the 2020 data, when the geolocators were equipped.", fig.asp=0.56, fig.align = 'center', fig.width=6}
+p <- ggplot() +
+  geom_point(data = session %>% mutate(CountT = ifelse(Count > 6, 6, Count)), aes(x = DayOfYear, y = CountT, size = Count, color = Year), stroke = 0, alpha = .6) +
+  geom_point(data = session2020, aes(x = DayOfYear, y = Count, size = Count), stroke = 0) +
+  # geom_ribbon(data = bind_pred %>% filter(scenario=="default"), aes(x=DayOfYear, ymin = lwrY, ymax = uprY ), color = NA, alpha=0.3) +
+  geom_line(data = bind_pred %>% filter(scenario == "default"), aes(x = DayOfYear, y = CountFoY), size = 1) +
+  scale_color_gradientn(colours = wes_palette(pal.name, type = "continuous"), aesthetics = c("colour")) +
+  xlab("Day of Year") +
+  ylab("Number of Capture per Session") +
+  scale_x_continuous(
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b"),
+    minor_breaks = c(),
+    # expand = c(0,0),
+    limits = c(100, 365)
+  ) +
+  scale_y_continuous(
+    breaks = 0:6,
+    minor_breaks = c(),
+    labels = c(0, 1, 2, 3, 4, 5, "6+"),
+    # expand = c(0,0),
+    # limits = c(0,6)
+  ) +
+  theme(aspect.ratio = 9 / 16) +
+  scale_size(limits = c(-2, 11))
+
+# ggsave(filename = 'figures/figure1.pdf', plot = print(p), width = 16, height=9, units = "cm")
+ggplotly(p, width = wid, height = hei)
+```
+
+```{r, echo=TRUE, fig.asp=0.84, fig.align = 'center', fig.width=6, fig.cap="" }
+session %>% ggplot() +
+  geom_line(aes(group = Year, color = factor(Year), x = DayOfYear, y = CumCountFoY), size = 1)
+```
+
+
+```{r, warning=F}
+bind_pred_y <- data.frame()
+for (y in unique(session$Year)) {
+  mody <- list()
+  i <- 0
+  for (d in session.imputed) {
+    i <- i + 1
+    a <- d %>%
+      filter(Year != y) %>%
+      mutate(Year = factor(Year))
+    mody[[i]] <- gam(CountFoY ~ s(Year, bs = "re") + s(DayOfYear) + NetsDuration + NetsLength + CumCountFoY, family = poisson(), data = a)
+  }
+  tmp <- session.imputed[[1]] %>% filter(Year == y)
+  bind_pred_y <- bind_rows(
+    bind_pred_y,
+    predictf(mody, dayf = tmp$DayOfYear, netsLengthf = tmp$NetsLength, netsDurationf = tmp$NetsDuration, scenariof = y)
+  )
+}
+
+p <- left_join(
+  session %>% group_by(Year) %>%
+    summarise(
+      session = max(CumCountFoY)
+    ),
+  bind_pred_y %>% mutate(Year = scenario) %>% group_by(Year) %>%
+    summarise(
+      model = max(CumCountFoY)
+    ),
+  by = "Year"
+) %>%
+  ggplot() +
+  geom_point(aes(x = session, y = model, color = Year)) +
+  geom_abline(slope = 1, intercept = 0) +
+  coord_fixed() +
+  labs(x = "Actual data", y = "Model estimation") +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(0, 30)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(0, 30)) +
+  theme(aspect.ratio = 1, legend.position = "top")
+
+# ggsave(filename = 'figures/figureSM8.pdf', plot = print(p), width = 9, height=9, units = "cm")
+ggplotly(p, width = wid, height = hei)
+```
+
+## Appendix 3.	Recapture model
+
+```{r weight-recapture, echo=TRUE, fig.cap="Histograms of the weight of RCRC recaptured in a following year and those not recaptured, together with the model fit. The uncertainty of the model shows that weight has an unclear influence on the recatpure rate.", fig.asp=1.125, fig.align = 'center', fig.width=6, warning=F}
+
+p1 <- ring %>%
+  filter(Weight < 50) %>%
+  ggplot(aes(x = Weight, colour = nextSeason)) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(0, 50)) +
+  theme(aspect.ratio = 9 / 16, legend.position = "none")
+
+
+p2 <- ring %>%
+  filter(Weight < 50) %>%
+  ggplot(aes(y = as.numeric(nextSeason), x = Weight)) +
+  geom_smooth(method = "glm", formula = y ~ x, method.args = list(family = "binomial")) +
+  scale_x_continuous(minor_breaks = c(), expand = c(0, 0)) +
+  scale_y_continuous(minor_breaks = c(), expand = c(0, 0), limits = c(0, 1), labels = scales::percent) +
+  theme(aspect.ratio = 9 / 16)
+
+p <- arrangeGrob(p1, p2)
+
+# ggsave(filename = 'figures/figureSM4.pdf', plot = p, width = 16, height=9*2, units = "cm")
+# grid.arrange(p)
+subplot(ggplotly(p1, width = wid, height = hei * 2), ggplotly(p2, width = wid, height = hei * 2), nrows = 2)
+```
+
+
+```{r expection, echo=TRUE, warning=FALSE, fig.asp=0.56, fig.align = 'center', fig.width=6}
+p <- bind_pred %>%
+  filter(scenario == "default") %>%
+  left_join(pred_Juv, by = c("Year", "DayOfYear", "NetsLength", "NetsDuration", "scenario"), suffix = c("", "juv")) %>%
+  left_join(pred_Ad, by = c("Year", "DayOfYear", "NetsLength", "NetsDuration", "scenario"), suffix = c("", "ad")) %>%
+  left_join(predictmodr, by = "DayOfYear") %>%
+  mutate(
+    exAd = CountFoYad * rA.fit,
+    exJuv = CountFoYjuv * rJ.fit,
+    ex = CountFoY * r.fit
+  ) %>%
+  ggplot() +
+  geom_line(aes(x = DayOfYear, y = exJuv), color = wes_palette("Cavalcanti1")[1], size = 1) +
+  geom_line(aes(x = DayOfYear, y = exAd), color = wes_palette("Cavalcanti1")[2], size = 1) +
+  geom_line(aes(x = DayOfYear, y = ex), color = wes_palette("Cavalcanti1")[4], size = 2) +
+  scale_x_continuous(
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b"),
+    limits = c(100, 350)
+  ) +
+  theme(aspect.ratio = 9 / 16, legend.position = "top") +
+  labs(y = "Expection of Recapture", x = "Day of Year")
+
+# ggsave(filename = 'figures/figureSM5.pdf', plot = p, width = 16, height=9, units = "cm")
+# print(p)
+ggplotly(p, width = wid, height = hei)
+```
+
+```{r capture-vs-recapture, echo=TRUE, warning=FALSE, fig.cap="Variation throughout the year of the probability that a bird captured is a bird that has been captured in previous years. Blue dots denote the data for each capture of the database and the red line denote the GLM fit of a binomial model. The probability doesn’t change throughout the year indicating that maximizing the capture of bird captured previous season is the same as maximizing the number of capture.", fig.asp=0.56, fig.align = 'center', fig.width=6}
+p <- ring %>% ggplot(aes(x = DayOfYear, y = as.numeric(isARetrap))) +
+  geom_point(size = 2) +
+  geom_smooth(method = "glm", formula = y ~ x, method.args = list(family = "binomial")) +
+  scale_color_manual(values = wes_palette("Cavalcanti1")) +
+  scale_x_continuous(
+    breaks = as.numeric(format(ISOdate(2004, 1:12, 1), "%j")),
+    labels = format(ISOdate(2004, 1:12, 1), "%b"),
+    # expand = c(0,0),
+    minor_breaks = c(),
+    limits = c(100, 350)
+  ) +
+  scale_y_continuous(
+    minor_breaks = c(),
+    # expand = c(0,0),
+    labels = scales::percent
+  ) +
+  theme(aspect.ratio = 9 / 16, legend.position = "none") +
+  labs(y = "Probability of Capturing a recapture", color = "Adult", x = "Day of Year")
+
+# ggsave(filename = 'figures/figureSM6.pdf', plot = p, width = 16, height=9, units = "cm")
+# print(p)
+ggplotly(p, width = wid, height = hei)
+```
+
+
+```{r, echo=TRUE, warning=FALSE, fig.asp=0.56, fig.align = 'center', fig.width=6}
+nextSeasonI <- c()
+for (i in (1:10)) {
+  nextSeasonI[i] <- mean(pmap_lgl(ring %>% select(Year, RingNo), ~ any(.x < ring$Year & .x >= ring$Year - i & .y == ring$RingNo)))
+}
+
+
+p <- data.frame(x = (1:10), y = nextSeasonI) %>% ggplot(aes(y = y, x = x)) +
+  geom_point(size = 2) +
+  geom_line() +
+  scale_y_continuous(expand = c(0, 0), minor_breaks = c(), labels = scales::percent, lim = c(0, .5)) +
+  scale_x_continuous(expand = c(0, 0), breaks = c(1:10), minor_breaks = c()) +
+  theme(aspect.ratio = 9 / 16, legend.position = "none") +
+  labs(y = "Probability of recapture", color = "Adult", x = "Year after capture")
+
+# ggsave(filename = 'figures/figureSM7.pdf', plot = p, width = 16, height=9, units = "cm")
+# print(p)
+ggplotly(p, width = wid, height = hei)
+```
+
+
+
+
+# Acknowledgements {.appendix}
+
+This work was supported by a grant from the Swiss Ornithological Institute and by the Swiss National Science Foundation (grant no. 191138). We thank A Rocha Kenya for providing the ringing dataset, and for carrying out field work to equip Red-capped Robin-chats with geolocators. We thank Martins Briedis, Matthew Sjaarda, Burri Reto, Wesley Hochachka, Alison Johnston and Améline Nussbaumer for their valuable contributions to the paper.
+
+# Data Accessibility {.appendix}
+
+The data and code that support the findings of this study are openly available in [Github] at [github.com/A-Rocha-Kenya/MaximizingRecapture](https://github.com/A-Rocha-Kenya/MaximizingRecapture).
